@@ -17,6 +17,26 @@ sock = socket.socket(socket.AF_INET,socket.SOCK_DGRAM)
 mode = "octet"
 strong = ""
 
+def main():
+    if transfermode == "lesa":
+        request(1, filename)
+    elif transfermode == "skrifa":
+        request(2, filename)
+    else:
+        print('Please use Servername Read/Write FileName')
+
+def request (trmode, filenm):
+    format = "!H%ds" % (len(filenm)+1)
+    format += "%ds" % (len(mode)+1)
+    s = struct.pack(format, trmode , filenm, mode)
+    sock.sendto(s,(host,69))
+    data, svar = sock.recvfrom(1024)
+    port = svar[1]
+    if trmode == 1:
+        read(port, data)
+    elif trmode == 2:
+        write(port, data)
+
 def read(prt, dta):
     nextblock = 1
     lastpkt = s
@@ -47,23 +67,6 @@ def write(prt, dta):
     sock.close()
     print('File Recieved')
 
-def request (trmode, filenm):
-    format = "!H%ds" % (len(filenm)+1)
-    format += "%ds" % (len(mode)+1)
-    s = struct.pack(format, trmode , filenm, mode)
-    sock.sendto(s,(host,69))
-    data, svar = sock.recvfrom(1024)
-    port = svar[1]
-    if trmode == 1:
-        read(port, data)
-    elif trmode == 2:
-        write(port, data)
-
-if transfermode == "lesa":
-    request(1, filename)
-elif transfermode == "skrifa":
-    request(2, filename)
-else:
-    print('Please use Servername Read/Write FileName')
-
+if __name__ == "__main__":
+    main()
    
