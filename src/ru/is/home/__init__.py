@@ -30,6 +30,7 @@ def request (trmode, filenm):
     format = "!H%ds" % (len(filenm)+1)
     format += "%ds" % (len(mode)+1)
     s = struct.pack(format, trmode , filenm, mode)
+    sock.settimeout(5)
     try:
         sock.sendto(s,(host,69))
         data, svar = sock.recvfrom(1024)
