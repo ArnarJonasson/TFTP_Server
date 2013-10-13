@@ -1,4 +1,3 @@
-
 #           opcode  operation
 #             1     Read request (RRQ)
 #             2     Write request (WRQ)
@@ -11,7 +10,7 @@ import socket, sys, struct, string, array
 ErrorMsg = ['Not defined, see error message (if any).', 'File not found.', 'Access violation.', 'Disk full or allocation exceeded.' , 'Illegal TFTP Operation.', 'Illegal TFTP operation.', 'Unknown transfer ID.', 'File already exists.', 'No such user.', 'Failed to negotiate options']
 ErrorCode = array.array('i');
 host = sys.argv[1]
-transfermode = sys.argv[2]
+transfermode = sys.argv[2].lower()
 filename = sys.argv[3]
 #UDP_PORT = sys.argv[4]
 
@@ -19,9 +18,9 @@ sock = socket.socket(socket.AF_INET,socket.SOCK_DGRAM)
 mode = "octet"
 
 def main():
-    if transfermode == "lesa":
+    if transfermode == "read":
         request(1, filename)
-    elif transfermode == "skrifa":
+    elif transfermode == "write":
         request(2, filename)
     else:
         print('Please use Servername Read/Write FileName')
@@ -31,6 +30,7 @@ def request (trmode, filenm):
     format += "%ds" % (len(mode)+1)
     s = struct.pack(format, trmode , filenm, mode)
     sock.settimeout(5)
+    print trmode
     try:
         sock.sendto(s,(host,69))
         data, svar = sock.recvfrom(1024)
@@ -58,9 +58,8 @@ def read(prt, dta):
         print ErrorMsg[ErrorCode.index(1)]
         #Restart application and ask for new input
     else:
-        if len(dta) == 516:
-            Receiving = True;
-        #While loop to recvieve all packages.
+        Receiving = True;
+        #While loop to recvieve all packages.   
         while Receiving:
             #if last package was just received - sending last ACK pack.
             if len(dta) != 516:
@@ -74,7 +73,7 @@ def read(prt, dta):
                 sock.sendto(ack,(host,prt))
                 dta, svar = sock.recvfrom(1024)
                 strong += dta [4:]
-                nextblock += 1  
+                nextblock += 1          
             
 def write(dta, prt):
     #TODO Implement
@@ -91,4 +90,3 @@ def writeToFile(strong):
 
 if __name__ == "__main__":
     main()
-   
