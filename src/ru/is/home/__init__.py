@@ -15,12 +15,12 @@ var = raw_input("Enter something: ")
 #Input2 = Read or Write
 #Input3 = Document Name
 input1,input2,input3 = var.split(" ")
+UDP_IP = input1
+filename = input3
 
 if input2 == "lesa":
-    UDP_IP = input1
     sock = socket.socket(socket.AF_INET,socket.SOCK_DGRAM)
     #sock.connect((UDP_IP, UDP_PORT))
-    filename = input3
     mode = "octet"
     format = "!H%ds" % (len(filename)+1)
     format += "%ds" % (len(mode)+1)
