@@ -15,7 +15,6 @@ filename = sys.argv[3]
 
 sock = socket.socket(socket.AF_INET,socket.SOCK_DGRAM)
 mode = "octet"
-strong = ""
 
 def main():
     if transfermode == "lesa":
@@ -39,8 +38,7 @@ def request (trmode, filenm):
 
 def read(prt, dta):
     nextblock = 1
-    lastpkt = s
-    
+    strong = dta[4:]
     if len(dta) == 516:
         Receiving = True;
     #While loop to recvieve all packages.
@@ -50,15 +48,20 @@ def read(prt, dta):
             Receiving = False;
             ack = struct.pack("!HH", 4 , nextblock)
             sock.sendto(ack,(host,prt))
+            writeToFile(strong)
         #receiving packages.
         else:
             ack = struct.pack("!HH", 4 , nextblock)
             sock.sendto(ack,(host,prt))
-            data, svar = sock.recvfrom(1024)
+            dta, svar = sock.recvfrom(1024)
             strong += dta [4:]
             nextblock += 1
+            
+def write(dta, prt):
+    #TODO Implement
+    print('Writing')
 
-def write(prt, dta):
+def writeToFile(strong):
     #CREATE FILE AND WRITE TO IT.
     fo = open(filename, "wb")
     fo.write(strong)
