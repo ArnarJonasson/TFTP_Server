@@ -20,22 +20,26 @@ sock = socket.socket(socket.AF_INET,socket.SOCK_DGRAM)
 mode = "octet"
 
 def main():
-    if transfermode == "read":
-        request(1, filename, UDP_PORT)
-    elif transfermode == "write":
-        request(2, filename, UDP_PORT)
+    if transfermode == "lesa":
+        request(1, filename, host)
+    elif transfermode == "skrifa":
+        request(2, filename, host)
     else:
         print('Please use Servername Read/Write FileName')
-
-def request (trmode, filenm, UDP_PORT):
+        
+def request (trmode, filenm, Host):
+    if Host[0].isalpha():
+        try:
+            Host = socket.gethostbyname(Host)
+        except:
+            print("Cannot get host by name")
     format = "!H%ds" % (len(filenm)+1)
     format += "%ds" % (len(mode)+1)
 
     s = struct.pack(format, trmode , filenm, mode)
     sock.settimeout(5)
     try:
-        print UDP_PORT
-        sock.sendto(s,(host,UDP_PORT))
+        sock.sendto(s,(Host,UDP_PORT))
         data, svar = sock.recvfrom(1024)
         port = svar[1]
         if trmode == 1:
