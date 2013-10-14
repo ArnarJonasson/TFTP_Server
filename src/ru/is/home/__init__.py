@@ -12,27 +12,30 @@ ErrorCode = array.array('i');
 host = sys.argv[1]
 transfermode = sys.argv[2].lower()
 filename = sys.argv[3]
-#UDP_PORT = sys.argv[4]
+if(len(sys.argv)==5):
+    UDP_PORT = int(sys.argv[4]);
+else: UDP_PORT = 69;
 
 sock = socket.socket(socket.AF_INET,socket.SOCK_DGRAM)
 mode = "octet"
 
 def main():
     if transfermode == "read":
-        request(1, filename)
+        request(1, filename, UDP_PORT)
     elif transfermode == "write":
-        request(2, filename)
+        request(2, filename, UDP_PORT)
     else:
         print('Please use Servername Read/Write FileName')
 
-def request (trmode, filenm):
+def request (trmode, filenm, UDP_PORT):
     format = "!H%ds" % (len(filenm)+1)
     format += "%ds" % (len(mode)+1)
+
     s = struct.pack(format, trmode , filenm, mode)
     sock.settimeout(5)
-    print trmode
     try:
-        sock.sendto(s,(host,69))
+        print UDP_PORT
+        sock.sendto(s,(host,UDP_PORT))
         data, svar = sock.recvfrom(1024)
         port = svar[1]
         if trmode == 1:
