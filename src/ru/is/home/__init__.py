@@ -23,7 +23,16 @@ def main():
     if transfermode == "lesa":
         request(1, filename, host)
     elif transfermode == "skrifa":
-        request(2, filename, host)
+        try:
+            fo = open(filename, "r")
+            str = fo.read()
+        except:
+            print("File Not Found")
+            str = None
+        if str == None:
+            print("Error in Opening File")
+        else:
+            request(2, filename, host)
     else:
         print('Please use Servername Read/Write FileName')
         
@@ -87,7 +96,6 @@ def getdata():
         fo = open(filename, "r")
         str = fo.read()
     except:
-        print("File Not Found")
         str = None
     return str
         
@@ -113,7 +121,6 @@ def write(prt, dta, Host):
                 #last package needs new format
                 formatlastpack = "!HH%ds" % (len(filedata)-currentlet)
                 Sending = False;
-                print len(filedata)
                 #sending last package
                 ack = struct.pack(formatlastpack, 3, nextblock, filedata[currentlet:len(filedata)])
                 sock.sendto(ack,(Host,prt))
