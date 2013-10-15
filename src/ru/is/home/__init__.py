@@ -43,9 +43,9 @@ def request (trmode, filenm, Host):
         data, svar = sock.recvfrom(1024)
         port = svar[1]
         if trmode == 1:
-            read(port, data)
+            read(port, data, Host)
         elif trmode == 2:
-            write(port, data)
+            write(port, data, Host)
     except:
         print("Cannot connect to " + host)
         
@@ -58,7 +58,7 @@ def checkPackage(package):
     else:
         return True
 
-def read(prt, dta):
+def read(prt, dta, Host):
     nextblock = 1
     strong = dta[4:]
     if checkPackage(dta) == False:
@@ -72,19 +72,64 @@ def read(prt, dta):
             if len(dta) != 516:
                 Receiving = False;
                 ack = struct.pack("!HH", 4 , nextblock)
-                sock.sendto(ack,(host,prt))
+                sock.sendto(ack,(Host,prt))
                 writeToFile(strong)
             #receiving packages.
             else:
                 ack = struct.pack("!HH", 4 , nextblock)
-                sock.sendto(ack,(host,prt))
+                sock.sendto(ack,(Host,prt))
                 dta, svar = sock.recvfrom(1024)
                 strong += dta [4:]
                 nextblock += 1          
+                
+def getdata():
+    try:
+        fo = open(filename, "r")
+        str = fo.read()
+    except:
+        print("File Not Found")
+        str = None
+    return str
+        
             
-def write(dta, prt):
-    #TODO Implement
-    print('Writing')
+def write(prt, dta, Host):
+    #currentblock we're sending
+    nextblock = 1
+    #current letter to send
+    currentlet = 0
+    #Max length to add to packages
+    packmax = 512
+    #DAT format
+    format = "!HH%ds" % 512
+    #load up the data to send
+    filedata = getdata()
+    if filedata is None:
+        print("Error in opening File")
+    else:
+        Sending = True
+        while Sending:
+            #send last package
+            if packmax > len(filedata):
+                #last package needs new format
+                formatlastpack = "!HH%ds" % (len(filedata)-currentlet)
+                Sending = False;
+                print len(filedata)
+                #sending last package
+                ack = struct.pack(formatlastpack, 3, nextblock, filedata[currentlet:len(filedata)])
+                sock.sendto(ack,(Host,prt))
+            #send other package
+            else:
+                #sending package number X
+                ack = struct.pack(format, 3, nextblock, filedata[currentlet:packmax])
+                sock.sendto(ack,(Host,prt))
+                dta, svar = sock.recvfrom(1024)
+                #Updating variables so we know where we are in the file
+                currentlet = packmax+1
+                packmax += 512+1
+                nextblock += 1
+            
+        #TODO Implement
+        print('Finished Writing')
 
 def writeToFile(strong):
     #CREATE FILE AND WRITE TO IT.
