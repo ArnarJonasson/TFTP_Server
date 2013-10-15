@@ -20,9 +20,9 @@ sock = socket.socket(socket.AF_INET,socket.SOCK_DGRAM)
 mode = "octet"
 
 def main():
-    if transfermode == "lesa":
+    if transfermode == "read":
         request(1, filename, host)
-    elif transfermode == "skrifa":
+    elif transfermode == "write":
         try:
             fo = open(filename, "r")
             str = fo.read()
